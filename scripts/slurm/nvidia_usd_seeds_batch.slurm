@@ -40,7 +40,6 @@ export NCCL_IB_DISABLE=0
 export NCCL_IB_CUDA_SUPPORT=1
 
 # Run training with fixed best parameters and varying imitation weight
-cd /lustre/fswork/projects/rech/mav/uoa29gx/projects/dog2robot/IsaacLab
 python scripts/rsl_rl/train.py \
     --task Isaac-Velocity-Flat-H1-NVIDIA-USD \
     --headless \
