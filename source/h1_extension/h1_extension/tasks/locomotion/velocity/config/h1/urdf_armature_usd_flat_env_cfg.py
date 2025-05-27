@@ -5,7 +5,7 @@
 
 from isaaclab.utils import configclass
 
-from .nvidia_usd_rough_env_cfg import H1RoughEnvCfg
+from .urdf_armature_usd_rough_env_cfg import H1RoughEnvCfg
 
 
 @configclass

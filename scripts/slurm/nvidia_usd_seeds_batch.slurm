@@ -42,9 +42,9 @@ export NCCL_IB_CUDA_SUPPORT=1
 # Run training with fixed best parameters and varying imitation weight
 cd /lustre/fswork/projects/rech/mav/uoa29gx/projects/dog2robot/IsaacLab
 python scripts/rsl_rl/train.py \
-    --task=Isaac-Velocity-Flat-H1-NVIDIA-USD \
+    --task Isaac-Velocity-Flat-H1-NVIDIA-USD \
     --headless \
-    --num_envs=4096 \
+    --num_envs 4096 \
     agent.max_iterations=1000 \
     agent.experiment_name="${EXPERIMENT_NAME}" \
     ${CONFIG}

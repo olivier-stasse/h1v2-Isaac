@@ -122,7 +122,7 @@ This configuration removes most collision meshes to speed up simulation.
 
 H1_URDF_ARMATURE_CFG = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path="source/h1_assets/h1_assets/robots/h1.usd",
+        usd_path=f"/home/croux/projects/animal2robot/dog2action/h1v2-Isaac/source/h1_assets/h1_assets/h1_usd/h1.usd",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
@@ -140,67 +140,70 @@ H1_URDF_ARMATURE_CFG = ArticulationCfg(
     init_state=ArticulationCfg.InitialStateCfg(
         pos=(0.0, 0.0, 1.05),
         joint_pos={
-            ".*_hip_yaw": 0.0,
-            ".*_hip_roll": 0.0,
-            ".*_hip_pitch": -0.28,  # -16 degrees
-            ".*_knee": 0.79,  # 45 degrees
-            ".*_ankle": -0.52,  # -30 degrees
-            "torso": 0.0,
-            ".*_shoulder_pitch": 0.28,
-            ".*_shoulder_roll": 0.0,
-            ".*_shoulder_yaw": 0.0,
-            ".*_elbow": 0.52,
+            ".*_hip_yaw_joint": 0.0,
+            ".*_hip_roll_joint": 0.0,
+            ".*_hip_pitch_joint": -0.28,  # -16 degrees
+            ".*_knee_joint": 0.79,  # 45 degrees
+            ".*_ankle_joint": -0.52,  # -30 degrees
+            "torso_joint": 0.0,
+            ".*_shoulder_pitch_joint": 0.28,
+            ".*_shoulder_roll_joint": 0.0,
+            ".*_shoulder_yaw_joint": 0.0,
+            ".*_elbow_joint": 0.52,
         },
         joint_vel={".*": 0.0},
     ),
     soft_joint_pos_limit_factor=0.9,
     actuators={
         "legs": ImplicitActuatorCfg(
-            joint_names_expr=[".*_hip_yaw", ".*_hip_roll", ".*_hip_pitch", ".*_knee", "torso"],
+            joint_names_expr=[".*_hip_yaw_joint", ".*_hip_roll_joint", ".*_hip_pitch_joint", ".*_knee_joint", "torso_joint"],
             effort_limit=300,
             velocity_limit=100.0,
-            armature=0.1,
             stiffness={
-                ".*_hip_yaw": 150.0,
-                ".*_hip_roll": 150.0,
-                ".*_hip_pitch": 200.0,
-                ".*_knee": 200.0,
-                "torso": 200.0,
+                ".*_hip_yaw_joint": 150.0,
+                ".*_hip_roll_joint": 150.0,
+                ".*_hip_pitch_joint": 200.0,
+                ".*_knee_joint": 200.0,
+                "torso_joint": 200.0,
             },
             damping={
-                ".*_hip_yaw": 5.0,
-                ".*_hip_roll": 5.0,
-                ".*_hip_pitch": 5.0,
-                ".*_knee": 5.0,
-                "torso": 5.0,
+                ".*_hip_yaw_joint": 5.0,
+                ".*_hip_roll_joint": 5.0,
+                ".*_hip_pitch_joint": 5.0,
+                ".*_knee_joint": 5.0,
+                "torso_joint": 5.0,
             },
+            armature=0.1,
         ),
         "feet": ImplicitActuatorCfg(
-            joint_names_expr=[".*_ankle"],
+            joint_names_expr=[".*_ankle_joint"],
             effort_limit=100,
             velocity_limit=100.0,
+            stiffness={".*_ankle_joint": 20.0},
+            damping={".*_ankle_joint": 4.0},
             armature=0.1,
-            stiffness={".*_ankle": 20.0},
-            damping={".*_ankle": 4.0},
         ),
         "arms": ImplicitActuatorCfg(
-            joint_names_expr=[".*_shoulder_pitch", ".*_shoulder_roll", ".*_shoulder_yaw", ".*_elbow"],
+            joint_names_expr=[".*_shoulder_pitch_joint", ".*_shoulder_roll_joint", ".*_shoulder_yaw_joint", ".*_elbow_joint"],
             effort_limit=300,
             velocity_limit=100.0,
-            armature=0.1,
             stiffness={
-                ".*_shoulder_pitch": 40.0,
-                ".*_shoulder_roll": 40.0,
-                ".*_shoulder_yaw": 40.0,
-                ".*_elbow": 40.0,
+                ".*_shoulder_pitch_joint": 40.0,
+                ".*_shoulder_roll_joint": 40.0,
+                ".*_shoulder_yaw_joint": 40.0,
+                ".*_elbow_joint": 40.0,
             },
             damping={
-                ".*_shoulder_pitch": 10.0,
-                ".*_shoulder_roll": 10.0,
-                ".*_shoulder_yaw": 10.0,
-                ".*_elbow": 10.0,
+                ".*_shoulder_pitch_joint": 10.0,
+                ".*_shoulder_roll_joint": 10.0,
+                ".*_shoulder_yaw_joint": 10.0,
+                ".*_elbow_joint": 10.0,
             },
+            armature=0.1,
         ),
     },
 )
 """Configuration for the Unitree H1 Humanoid robot."""
+
+
+H1_URDF_ARMATURE_CFG = H1_URDF_ARMATURE_CFG.copy()
