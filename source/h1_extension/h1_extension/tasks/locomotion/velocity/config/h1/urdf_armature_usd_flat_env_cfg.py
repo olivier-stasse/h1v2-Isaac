@@ -1,18 +1,19 @@
+# Copyright (c) 2022-2025, The Isaac Lab Project Developers.
+# All rights reserved.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+
 from isaaclab.utils import configclass
 
-from .rough_env_cfg import AnymalDRoughEnvCfg
+from .nvidia_usd_rough_env_cfg import H1RoughEnvCfg
 
 
 @configclass
-class AnymalDFlatEnvCfg(AnymalDRoughEnvCfg):
+class H1FlatEnvCfg(H1RoughEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
 
-        # override rewards
-        self.rewards.flat_orientation_l2.weight = -5.0
-        self.rewards.dof_torques_l2.weight = -2.5e-5
-        self.rewards.feet_air_time.weight = 0.5
         # change terrain to flat
         self.scene.terrain.terrain_type = "plane"
         self.scene.terrain.terrain_generator = None
@@ -21,9 +22,11 @@ class AnymalDFlatEnvCfg(AnymalDRoughEnvCfg):
         self.observations.policy.height_scan = None
         # no terrain curriculum
         self.curriculum.terrain_levels = None
+        self.rewards.feet_air_time.weight = 1.0
+        self.rewards.feet_air_time.params["threshold"] = 0.6
 
 
-class AnymalDFlatEnvCfg_PLAY(AnymalDFlatEnvCfg):
+class H1FlatEnvCfg_PLAY(H1FlatEnvCfg):
     def __post_init__(self) -> None:
         # post init of parent
         super().__post_init__()

@@ -13,7 +13,7 @@ from isaaclab_tasks.manager_based.locomotion.velocity.velocity_env_cfg import Lo
 ##
 # Pre-defined configs
 ##
-from isaaclab_assets import H1_MINIMAL_CFG  # isort: skip
+from h1_assets.robots.h1 import H1_NVIDIA_MINIMAL_CFG  # isort: skip
 
 
 @configclass
@@ -75,7 +75,7 @@ class H1RoughEnvCfg(LocomotionVelocityRoughEnvCfg):
         # post init of parent
         super().__post_init__()
         # Scene
-        self.scene.robot = H1_MINIMAL_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.scene.robot = H1_NVIDIA_MINIMAL_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         if self.scene.height_scanner:
             self.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/torso_link"
 

@@ -3,20 +3,21 @@
 #
 # SPDX-License-Identifier: BSD-3-Clause
 
-import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
 from isaaclab.managers import RewardTermCfg as RewTerm
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.utils import configclass
+
+import isaaclab_tasks.manager_based.locomotion.velocity.mdp as mdp
 from isaaclab_tasks.manager_based.locomotion.velocity.velocity_env_cfg import LocomotionVelocityRoughEnvCfg, RewardsCfg
 
 ##
 # Pre-defined configs
 ##
-from h1_assets.robots.h1v2 import H1_2_27DOF as ROBOT_CFG  # isort: skip
+from h1_assets.robots.h1 import H1_URDF_ARMATURE_CFG  # isort: skip
 
 
 @configclass
-class H12Rewards(RewardsCfg):
+class H1Rewards(RewardsCfg):
     """Reward terms for the MDP."""
 
     termination_penalty = RewTerm(func=mdp.is_terminated, weight=-200.0)
@@ -34,7 +35,7 @@ class H12Rewards(RewardsCfg):
         weight=0.25,
         params={
             "command_name": "base_velocity",
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*ankle_roll_link"),
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*ankle_link"),
             "threshold": 0.4,
         },
     )
@@ -42,43 +43,39 @@ class H12Rewards(RewardsCfg):
         func=mdp.feet_slide,
         weight=-0.25,
         params={
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*ankle_roll_link"),
-            "asset_cfg": SceneEntityCfg("robot", body_names=".*ankle_roll_link"),
+            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=".*ankle_link"),
+            "asset_cfg": SceneEntityCfg("robot", body_names=".*ankle_link"),
         },
     )
     # Penalize ankle joint limits
     dof_pos_limits = RewTerm(
-        func=mdp.joint_pos_limits,
-        weight=-1.0,
-        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_ankle_roll_joint", ".*_ankle_pitch_joint"])},
+        func=mdp.joint_pos_limits, weight=-1.0, params={"asset_cfg": SceneEntityCfg("robot", joint_names=".*_ankle")}
     )
     # Penalize deviation from default of the joints that are not essential for locomotion
     joint_deviation_hip = RewTerm(
         func=mdp.joint_deviation_l1,
         weight=-0.2,
-        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_hip_yaw_joint", ".*_hip_roll_joint"])},
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_hip_yaw", ".*_hip_roll"])},
     )
     joint_deviation_arms = RewTerm(
         func=mdp.joint_deviation_l1,
         weight=-0.2,
-        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_shoulder_.*", ".*_elbow_joint"])},
+        params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_shoulder_.*", ".*_elbow"])},
     )
     joint_deviation_torso = RewTerm(
-        func=mdp.joint_deviation_l1,
-        weight=-0.1,
-        params={"asset_cfg": SceneEntityCfg("robot", joint_names="torso_joint")},
+        func=mdp.joint_deviation_l1, weight=-0.1, params={"asset_cfg": SceneEntityCfg("robot", joint_names="torso")}
     )
 
 
 @configclass
-class H12RoughEnvCfg(LocomotionVelocityRoughEnvCfg):
-    rewards: H12Rewards = H12Rewards()
+class H1RoughEnvCfg(LocomotionVelocityRoughEnvCfg):
+    rewards: H1Rewards = H1Rewards()
 
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
         # Scene
-        self.scene.robot = ROBOT_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
+        self.scene.robot = H1_URDF_ARMATURE_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
         if self.scene.height_scanner:
             self.scene.height_scanner.prim_path = "{ENV_REGEX_NS}/Robot/torso_link"
 
@@ -99,30 +96,27 @@ class H12RoughEnvCfg(LocomotionVelocityRoughEnvCfg):
             },
         }
 
+        # Terminations
+        self.terminations.base_contact.params["sensor_cfg"].body_names = [".*torso_link"]
+
         # Rewards
         self.rewards.undesired_contacts = None
         self.rewards.flat_orientation_l2.weight = -1.0
-        self.rewards.dof_torques_l2.weight = -1.5e-7
+        self.rewards.dof_torques_l2.weight = 0.0
         self.rewards.action_rate_l2.weight = -0.005
         self.rewards.dof_acc_l2.weight = -1.25e-7
-        self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
-            "robot", joint_names=[".*_hip_.*", ".*_knee_joint", ".*_ankle_.*"]
-        )
+
         # Commands
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 1.0)
         self.commands.base_velocity.ranges.lin_vel_y = (0.0, 0.0)
         self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)
 
         # terminations
-        self.terminations.base_contact.params["sensor_cfg"].body_names = [
-            ".*pelvis",
-            ".*torso_link",
-            ".*(left|right)_(shoulder|elbow|wrist|hip).*_link",
-        ]
+        self.terminations.base_contact.params["sensor_cfg"].body_names = ".*torso_link"
 
 
 @configclass
-class H12RoughEnvCfg_PLAY(H12RoughEnvCfg):
+class H1RoughEnvCfg_PLAY(H1RoughEnvCfg):
     def __post_init__(self):
         # post init of parent
         super().__post_init__()
