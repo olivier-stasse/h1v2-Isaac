@@ -22,10 +22,36 @@ class H12FlatEnvCfg(H12RoughEnvCfg):
         self.scene.height_scanner = None
         self.observations.policy.height_scan = None
 
-        self.observations.policy.base_lin_vel = None
-        self.observations.policy.history_length = 10
-        self.observations.policy.enable_corruption = True
-        # self.observations.policy.concatenate_terms = True
+        self.actions.joint_pos.preserve_order = True
+        self.actions.joint_pos.joint_names = [
+            "left_hip_yaw_joint",
+            "left_hip_pitch_joint",
+            "left_hip_roll_joint",
+            "left_knee_joint",
+            "left_ankle_pitch_joint",
+            "left_ankle_roll_joint",
+            "right_hip_yaw_joint",
+            "right_hip_pitch_joint",
+            "right_hip_roll_joint",
+            "right_knee_joint",
+            "right_ankle_pitch_joint",
+            "right_ankle_roll_joint",
+            "torso_joint",
+            "left_shoulder_pitch_joint",
+            "left_shoulder_roll_joint",
+            "left_shoulder_yaw_joint",
+            "left_elbow_joint",
+            "left_wrist_roll_joint",
+            "left_wrist_pitch_joint",
+            "left_wrist_yaw_joint",
+            "right_shoulder_pitch_joint",
+            "right_shoulder_roll_joint",
+            "right_shoulder_yaw_joint",
+            "right_elbow_joint",
+            "right_wrist_roll_joint",
+            "right_wrist_pitch_joint",
+            "right_wrist_yaw_joint",
+        ]
 
         # no terrain curriculum
         self.curriculum.terrain_levels = None

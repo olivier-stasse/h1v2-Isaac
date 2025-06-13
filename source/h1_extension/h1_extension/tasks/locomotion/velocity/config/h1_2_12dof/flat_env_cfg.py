@@ -22,10 +22,26 @@ class H12_12dof_FlatEnvCfg(H12_12dof_RoughEnvCfg):
         self.scene.height_scanner = None
         self.observations.policy.height_scan = None
 
-        self.observations.policy.base_lin_vel = None
-        self.observations.policy.history_length = 10
-        self.observations.policy.enable_corruption = True
+        # self.observations.policy.base_lin_vel = None
+        # self.observations.policy.history_length = 10
+        # self.observations.policy.enable_corruption = True
         # self.observations.policy.concatenate_terms = True
+
+        self.actions.joint_pos.preserve_order = True
+        self.actions.joint_pos.joint_names = [
+            "left_hip_yaw_joint",
+            "left_hip_pitch_joint",
+            "left_hip_roll_joint",
+            "left_knee_joint",
+            "left_ankle_pitch_joint",
+            "left_ankle_roll_joint",
+            "right_hip_yaw_joint",
+            "right_hip_pitch_joint",
+            "right_hip_roll_joint",
+            "right_knee_joint",
+            "right_ankle_pitch_joint",
+            "right_ankle_roll_joint",
+        ]
 
         # no terrain curriculum
         self.curriculum.terrain_levels = None
@@ -42,9 +58,9 @@ class H12_12dof_FlatEnvCfg(H12_12dof_RoughEnvCfg):
             "robot", joint_names=[".*_hip_.*", ".*_knee_joint", ".*_ankle_.*"]
         )
         # Commands
-        self.commands.base_velocity.ranges.lin_vel_x = (0.0, 1.0)
-        self.commands.base_velocity.ranges.lin_vel_y = (-0.5, 0.5)
-        self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)
+        self.commands.base_velocity.ranges.lin_vel_x = (1.0, 1.0)
+        self.commands.base_velocity.ranges.lin_vel_y = (0.0, 0.0)
+        self.commands.base_velocity.ranges.ang_vel_z = (0.0, 0.0)
 
 
 class H12_12dof_FlatEnvCfg_PLAY(H12_12dof_FlatEnvCfg):
