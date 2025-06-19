@@ -275,7 +275,8 @@ H1_2_SHADOW_CFG = ArticulationCfg(
 
 H1_2_12DOF = ArticulationCfg(
     spawn=sim_utils.UsdFileCfg(
-        usd_path="/home/atrovatell/ws/IsaacLab/v1.0/h1v2-Isaac/urdfs/12dofs/h1_2_12dof.usd",
+        #usd_path="/home/atrovatell/ws/IsaacLab/v1.0/h1v2-Isaac/urdfs/12dofs/h1_2_12dof.usd",
+        usd_path="/lustre/fswork/projects/rech/ahr/urp31br/v1.0/h1v2-Isaac/urdfs/12dofs/h1_2_12dof.usd",
         activate_contact_sensors=True,
         rigid_props=sim_utils.RigidBodyPropertiesCfg(
             disable_gravity=False,
@@ -328,9 +329,9 @@ H1_2_12DOF = ArticulationCfg(
                 # "torso_joint": 200.0,
             },
             damping={
-                ".*_hip_yaw_joint": 5.0, # 2.5
-                ".*_hip_roll_joint": 5.0,
-                ".*_hip_pitch_joint": 5.0,
+                ".*_hip_yaw_joint": 2.5,
+                ".*_hip_roll_joint": 2.5,
+                ".*_hip_pitch_joint": 2.5,
                 # "torso_joint": 5.0,
             },
             armature=0.1,
@@ -343,7 +344,7 @@ H1_2_12DOF = ArticulationCfg(
                 ".*_knee_joint": 300.0,
             },
             damping={
-                ".*_knee_joint": 10.0, # 4.0
+                ".*_knee_joint": 4.0,
             },
             armature=0.1,
         ),
@@ -356,8 +357,8 @@ H1_2_12DOF = ArticulationCfg(
                 ".*_ankle_roll_joint": 40.0,
             },
             damping={
-                ".*_ankle_pitch_joint": 5.0, # 2.0
-                ".*_ankle_roll_joint": 5.0,
+                ".*_ankle_pitch_joint": 2.0,
+                ".*_ankle_roll_joint": 2.0,
             },
             armature=0.1,
         ),

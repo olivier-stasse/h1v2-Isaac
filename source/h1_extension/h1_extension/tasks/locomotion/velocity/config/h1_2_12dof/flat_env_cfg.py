@@ -5,8 +5,11 @@
 
 from isaaclab.managers import SceneEntityCfg
 from isaaclab.utils import configclass
+from isaaclab.managers import ObservationTermCfg as ObsTerm
+from isaaclab.utils.noise import AdditiveUniformNoiseCfg as Unoise
 
 from .rough_env_cfg import H12_12dof_RoughEnvCfg
+import h1_extension.tasks.locomotion.velocity.mdp as mdp
 
 
 @configclass
@@ -22,12 +25,44 @@ class H12_12dof_FlatEnvCfg(H12_12dof_RoughEnvCfg):
         self.scene.height_scanner = None
         self.observations.policy.height_scan = None
 
-        # self.observations.policy.base_lin_vel = None
-        # self.observations.policy.history_length = 10
-        # self.observations.policy.enable_corruption = True
-        # self.observations.policy.concatenate_terms = True
+        self.observations.policy.base_lin_vel = None
+        self.observations.policy.history_length = 5
+        self.observations.policy.enable_corruption = True
+        self.observations.policy.concatenate_terms = True
 
-        self.actions.joint_pos.preserve_order = True
+        self.observations.policy.joint_pos = ObsTerm(func=mdp.joint_pos_rel,
+                            noise=Unoise(n_min=-0.01, n_max=0.01),
+                            params={"asset_cfg": SceneEntityCfg("robot",
+                                                                joint_names=[   "left_hip_yaw_joint",
+                                                                                "left_hip_pitch_joint",
+                                                                                "left_hip_roll_joint",
+                                                                                "left_knee_joint",
+                                                                                "left_ankle_pitch_joint",
+                                                                                "left_ankle_roll_joint",
+                                                                                "right_hip_yaw_joint",
+                                                                                "right_hip_pitch_joint",
+                                                                                "right_hip_roll_joint",
+                                                                                "right_knee_joint",
+                                                                                "right_ankle_pitch_joint",
+                                                                                "right_ankle_roll_joint",],
+                                                                preserve_order=True)})
+        self.observations.policy.joint_vel = ObsTerm(func=mdp.joint_vel_rel,
+                            noise=Unoise(n_min=-1.5, n_max=1.5),
+                            params={"asset_cfg": SceneEntityCfg("robot",
+                                                                joint_names=[   "left_hip_yaw_joint",
+                                                                                "left_hip_pitch_joint",
+                                                                                "left_hip_roll_joint",
+                                                                                "left_knee_joint",
+                                                                                "left_ankle_pitch_joint",
+                                                                                "left_ankle_roll_joint",
+                                                                                "right_hip_yaw_joint",
+                                                                                "right_hip_pitch_joint",
+                                                                                "right_hip_roll_joint",
+                                                                                "right_knee_joint",
+                                                                                "right_ankle_pitch_joint",
+                                                                                "right_ankle_roll_joint",],
+                                                                preserve_order=True)})
+
         self.actions.joint_pos.joint_names = [
             "left_hip_yaw_joint",
             "left_hip_pitch_joint",
@@ -42,6 +77,7 @@ class H12_12dof_FlatEnvCfg(H12_12dof_RoughEnvCfg):
             "right_ankle_pitch_joint",
             "right_ankle_roll_joint",
         ]
+        self.actions.joint_pos.preserve_order = True
 
         # no terrain curriculum
         self.curriculum.terrain_levels = None
@@ -51,16 +87,31 @@ class H12_12dof_FlatEnvCfg(H12_12dof_RoughEnvCfg):
         self.rewards.track_ang_vel_z_exp.weight = 1.0
         self.rewards.action_rate_l2.weight = -0.005
         self.rewards.dof_acc_l2.weight = -1.0e-7
-        self.rewards.feet_air_time.weight = 0.75
+        self.rewards.feet_air_time.weight = 1.00
         self.rewards.feet_air_time.params["threshold"] = 0.4
         self.rewards.dof_torques_l2.weight = -2.0e-6
         self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
             "robot", joint_names=[".*_hip_.*", ".*_knee_joint", ".*_ankle_.*"]
         )
+        self.rewards.dof_pos_limits.weight = -1.0
+        self.rewards.dof_pos_limits.params["asset_cfg"] = SceneEntityCfg(
+            "robot", joint_names=[".*_ankle_roll_joint", ".*_ankle_pitch_joint"]
+        )
+        self.rewards.joint_deviation_hip.weight = -0.2
+        self.rewards.joint_deviation_hip.params["asset_cfg"] = SceneEntityCfg(
+            "robot", joint_names=[".*_hip_yaw_joint", ".*_hip_roll_joint"]
+        )
+        self.rewards.feet_slide.weight = -0.25
+        self.rewards.feet_slide.params["asset_cfg"] = SceneEntityCfg(
+            "robot", body_names=[".*ankle_roll_link"]
+        )
+        self.rewards.feet_slide.params["sensor_cfg"] = SceneEntityCfg(
+            "contact_forces", body_names=[".*ankle_roll_link"]
+        )
         # Commands
-        self.commands.base_velocity.ranges.lin_vel_x = (1.0, 1.0)
-        self.commands.base_velocity.ranges.lin_vel_y = (0.0, 0.0)
-        self.commands.base_velocity.ranges.ang_vel_z = (0.0, 0.0)
+        self.commands.base_velocity.ranges.lin_vel_x = (0.0, 1.0)
+        self.commands.base_velocity.ranges.lin_vel_y = (-0.5, 0.5)
+        self.commands.base_velocity.ranges.ang_vel_z = (-1.0, 1.0)
 
 
 class H12_12dof_FlatEnvCfg_PLAY(H12_12dof_FlatEnvCfg):
