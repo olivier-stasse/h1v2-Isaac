@@ -140,11 +140,9 @@ class CaTEnv(ManagerBasedRLEnv):
         self.reset_terminated = self.termination_manager.terminated
         self.reset_time_outs = self.termination_manager.time_outs
         # -- CaT constraints prob computation
-        if self.cfg.constraints:
-            cstr_prob = self.constraint_manager.compute()
-            dones = cstr_prob.clone()
-        else:
-            dones = torch.zeros(self.num_envs, device=self.device)
+        _, scaled_cstr_violation = self.constraint_manager.compute()
+        self.extras["scaled_cstr_violation"] = scaled_cstr_violation
+        dones = torch.zeros(self.num_envs, device=self.device)
 
         self.reward_buf = self.reward_manager.compute(dt=self.step_dt)
 

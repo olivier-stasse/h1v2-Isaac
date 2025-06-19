@@ -71,7 +71,6 @@ class CaT:
             self.running_maxes[name] = (
                 self.tau * self.running_maxes[name] + (1.0 - self.tau) * constraint_max
             )
-
         self.raw_constraints[name] = constraint
 
         # Get samples for which there is a constraint violation
@@ -294,6 +293,9 @@ class ConstraintManager(ManagerBase):
                 name, term_cfg.func(self._env, **term_cfg.params), term_cfg.max_p
             )
         cstr_prob = self.cat.get_probs()
+        raw_cstr_violation = self.cat.get_raw_constraints()
+        cstr_violation = (raw_cstr_violation > 0).float()
+        scaled_cstr_violation = cstr_violation * self.cat.get_max_p()
 
         for name in self._term_names:
             self._episode_sums[name] += (
@@ -301,7 +303,7 @@ class ConstraintManager(ManagerBase):
             )
             self._cstr_mean_values[name] += self.cat.probs[name].max(1).values
 
-        return cstr_prob
+        return cstr_prob, scaled_cstr_violation
 
     """
     Operations - Term settings.

@@ -56,8 +56,7 @@ class MySceneCfg(InteractiveSceneCfg):
 
     terrain = TerrainImporterCfg(
         prim_path="/World/ground",
-        terrain_type="generator",
-        terrain_generator=ROUGH_TERRAINS_CFG,
+        terrain_type="plane",
         max_init_terrain_level=1,
         collision_group=-1,
         physics_material=sim_utils.RigidBodyMaterialCfg(
@@ -612,6 +611,8 @@ class H12_12dof_EnvCfg_PLAY(H12_12dof_EnvCfg):
         super().__post_init__()
 
         # make a smaller scene for play
+        self.scene.terrain.terrain_type = "plane"
+        self.scene.terrain.terrain_generator = None
         self.scene.num_envs = 100
         self.scene.env_spacing = 2.5
         if self.scene.terrain.terrain_generator is not None:
@@ -627,4 +628,4 @@ class H12_12dof_EnvCfg_PLAY(H12_12dof_EnvCfg):
         # self.commands.base_velocity.ranges.ang_vel_z = (-0.5, 0.5)
         # self.commands.base_velocity.ranges.lin_vel_x = (0.0, .0)
         self.commands.base_velocity.ranges.lin_vel_y = (-0., 0.)
-        self.commands.base_velocity.ranges.ang_vel_z = (-1.57, 1.57)
+        self.commands.base_velocity.ranges.ang_vel_z = (0.0, 0.0)
