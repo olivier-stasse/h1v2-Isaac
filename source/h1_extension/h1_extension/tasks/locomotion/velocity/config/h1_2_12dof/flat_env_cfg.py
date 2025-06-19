@@ -63,6 +63,41 @@ class H12_12dof_FlatEnvCfg(H12_12dof_RoughEnvCfg):
                                                                                 "right_ankle_roll_joint",],
                                                                 preserve_order=True)})
 
+<<<<<<< HEAD
+=======
+        self.observations.policy.joint_pos.joint_names = [
+            "left_hip_yaw_joint",
+            "left_hip_pitch_joint",
+            "left_hip_roll_joint",
+            "left_knee_joint",
+            "left_ankle_pitch_joint",
+            "left_ankle_roll_joint",
+            "right_hip_yaw_joint",
+            "right_hip_pitch_joint",
+            "right_hip_roll_joint",
+            "right_knee_joint",
+            "right_ankle_pitch_joint",
+            "right_ankle_roll_joint",
+        ]
+        self.observations.policy.joint_pos.preserve_order = True
+
+        self.observations.policy.joint_vel.joint_names = [
+            "left_hip_yaw_joint",
+            "left_hip_pitch_joint",
+            "left_hip_roll_joint",
+            "left_knee_joint",
+            "left_ankle_pitch_joint",
+            "left_ankle_roll_joint",
+            "right_hip_yaw_joint",
+            "right_hip_pitch_joint",
+            "right_hip_roll_joint",
+            "right_knee_joint",
+            "right_ankle_pitch_joint",
+            "right_ankle_roll_joint",
+        ]
+        self.observations.policy.joint_vel.preserve_order = True
+        
+>>>>>>> c2787dbf738548dc4941cd962b66160a0a31548c
         self.actions.joint_pos.joint_names = [
             "left_hip_yaw_joint",
             "left_hip_pitch_joint",
@@ -87,8 +122,13 @@ class H12_12dof_FlatEnvCfg(H12_12dof_RoughEnvCfg):
         self.rewards.track_ang_vel_z_exp.weight = 1.0
         self.rewards.action_rate_l2.weight = -0.005
         self.rewards.dof_acc_l2.weight = -1.0e-7
+<<<<<<< HEAD
         self.rewards.feet_air_time.weight = 1.00
         self.rewards.feet_air_time.params["threshold"] = 0.4
+=======
+        self.rewards.feet_air_time.weight = 0.75
+        self.rewards.feet_air_time.params["threshold"] = 0.2
+>>>>>>> c2787dbf738548dc4941cd962b66160a0a31548c
         self.rewards.dof_torques_l2.weight = -2.0e-6
         self.rewards.dof_torques_l2.params["asset_cfg"] = SceneEntityCfg(
             "robot", joint_names=[".*_hip_.*", ".*_knee_joint", ".*_ankle_.*"]
