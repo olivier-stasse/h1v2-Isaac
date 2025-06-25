@@ -7,6 +7,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.distributions.normal import Normal
+from torch.nn import functional as F
 
 
 class RunningMeanStd(nn.Module):
@@ -123,6 +124,46 @@ class Agent(nn.Module):
         return action
 
 
+class CaTAggregator(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.aggregator = nn.Sequential(
+            layer_init(nn.Linear(np.array([77]).prod(), 512)),
+            nn.ELU(),
+            layer_init(nn.Linear(512, 256)),
+            nn.ELU(),
+            layer_init(nn.Linear(256, 128)),
+            nn.ELU(),
+            layer_init(nn.Linear(128, 1), std=1.0),
+            nn.Sigmoid()
+        )
+    
+    def forward(self, x):
+        return self.aggregator(x).squeeze(-1)
+
+    def loss(self, x):
+        termination_probs = self.forward(x).squeeze(-1)  # [B]
+        with torch.no_grad():
+            # Weighted mean violation per sample (can also be weighted by constraint priority vector)
+            mean_violation = x.mean(dim=1)  # [B]
+
+        # Expected violation weighted by survival prob
+        loss_violation = torch.mean((1.0 - termination_probs) * mean_violation)
+
+        # Optional: calibration loss (MSE to scaled violation)
+        calibration_loss = F.mse_loss(termination_probs, mean_violation)
+
+        # Entropy regularization
+        entropy = -(termination_probs * torch.log(termination_probs + 1e-8) +
+                    (1 - termination_probs) * torch.log(1 - termination_probs + 1e-8))
+        entropy_reg = entropy.mean()
+
+        # Combine all (adjust coefficients as needed)
+        loss = loss_violation + 0.5 * calibration_loss - 0.01 * entropy_reg
+
+        return loss
+
+
 def PPO(envs, ppo_cfg, run_path):
     if ppo_cfg.logger == "wandb":
         from rsl_rl.utils.wandb_utils import WandbSummaryWriter
@@ -165,7 +206,8 @@ def PPO(envs, ppo_cfg, run_path):
     BATCH_SIZE = int(NUM_ENVS * NUM_STEPS)
 
     agent = Agent(envs).to(device)
-    optimizer = optim.Adam(agent.parameters(), lr=LEARNING_RATE, eps=1e-5)
+    cat_aggregator = CaTAggregator().to(device)
+    optimizer = optim.Adam(list(agent.parameters()) + list(cat_aggregator.parameters()), lr=LEARNING_RATE, eps=1e-5)
 
     obs = torch.zeros(
         (NUM_STEPS, NUM_ENVS) + SINGLE_OBSERVATION_SPACE, dtype=torch.float
@@ -179,6 +221,7 @@ def PPO(envs, ppo_cfg, run_path):
     true_dones = torch.zeros((NUM_STEPS, NUM_ENVS), dtype=torch.float).to(device)
     values = torch.zeros((NUM_STEPS, NUM_ENVS), dtype=torch.float).to(device)
     advantages = torch.zeros_like(rewards, dtype=torch.float).to(device)
+    scaled_cstr_violation = torch.zeros((NUM_STEPS, NUM_ENVS, 77), dtype=torch.float).to(device)  # TODO croux: hardcoded value
 
     # TRY NOT TO MODIFY: start the game
     global_step = 0
@@ -215,6 +258,7 @@ def PPO(envs, ppo_cfg, run_path):
             next_obs, rewards[step], next_done, timeouts, info = envs.step(action)
             next_done = next_done.to(torch.float)
             next_obs = next_obs["policy"]
+            scaled_cstr_violation[step] = info["scaled_cstr_violation"]
 
             if "episode" in info:
                 ep_infos.append(info["episode"])
@@ -248,7 +292,9 @@ def PPO(envs, ppo_cfg, run_path):
                 writer.add_scalar("Episode/" + key, value, iteration)
 
         # CaT: must compute the CaT quantity
-        not_dones = 1.0 - dones
+        with torch.no_grad():
+            dones = cat_aggregator(scaled_cstr_violation)
+        not_dones = 1.0 - dones        
         rewards *= not_dones
 
         # bootstrap value if not done
@@ -287,7 +333,8 @@ def PPO(envs, ppo_cfg, run_path):
         b_advantages = advantages.reshape(-1)
         b_returns = returns.reshape(-1)
         b_values = values.reshape(-1)
-
+        b_scaled_cstr_violation = scaled_cstr_violation.reshape(-1, 77)  # TODO croux: hardcoded value
+        
         b_values = agent.value_rms(b_values)
         b_returns = agent.value_rms(b_returns)
 
@@ -345,7 +392,11 @@ def PPO(envs, ppo_cfg, run_path):
                     v_loss = 0.5 * ((newvalue - b_returns[mb_inds]) ** 2).mean()
 
                 entropy_loss = entropy.mean()
-                loss = pg_loss - ENT_COEF * entropy_loss + v_loss * VF_COEF
+                
+                # CaT Aggregator loss
+                cat_aggregator_loss = cat_aggregator.loss(b_scaled_cstr_violation[mb_inds])
+                
+                loss = pg_loss - ENT_COEF * entropy_loss + v_loss * VF_COEF + cat_aggregator_loss
 
                 sum_pg_loss += pg_loss
                 sum_entropy_loss += entropy_loss
