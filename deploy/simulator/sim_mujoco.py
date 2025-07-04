@@ -369,7 +369,7 @@ class MujocoSim:
         return foot_forces
 
     def _apply_torques(self, torques):
-        self.data.ctrl[self.enabled_joint_mujoco_idx] = torques
+        self.data.ctrl[:] = torques
 
     def get_robot_state(self):
         with self.sim_lock:

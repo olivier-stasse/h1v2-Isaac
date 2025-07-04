@@ -18,7 +18,7 @@ if __name__ == "__main__":
     log_dir.mkdir(parents=True, exist_ok=True)
 
     # Set up simulation
-    scene_path = SCENE_PATHS["h12"]["12dof"]
+    scene_path = SCENE_PATHS["h12"]["27dof"]
     sim = H12Mujoco(scene_path, config)
 
     # Load policy
