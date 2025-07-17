@@ -55,7 +55,7 @@ H12_12DOF = ArticulationCfg(
     ),
     soft_joint_pos_limit_factor=0.9,
     actuators={
-        "legs": DelayedPDActuatorCfg(
+        "legs": IdealPDActuatorCfg(
             joint_names_expr=[
                 ".*_hip_yaw_joint",
                 ".*_hip_roll_joint",
@@ -75,10 +75,8 @@ H12_12DOF = ArticulationCfg(
             },
             armature=0.01,
             friction=0.0,
-            min_delay=0,
-            max_delay=5,
         ),
-        "knees": DelayedPDActuatorCfg(
+        "knees": IdealPDActuatorCfg(
             joint_names_expr=[".*_knee_joint"],
             effort_limit=360,
             velocity_limit=100.0,
@@ -90,10 +88,8 @@ H12_12DOF = ArticulationCfg(
             },
             armature=0.01,
             friction=0.0,
-            min_delay=0,
-            max_delay=5,
         ),
-        "feet": DelayedPDActuatorCfg(
+        "feet": IdealPDActuatorCfg(
             joint_names_expr=[".*_ankle_pitch_joint", ".*_ankle_roll_joint"],
             effort_limit=45,
             velocity_limit=100.0,
@@ -107,8 +103,6 @@ H12_12DOF = ArticulationCfg(
             },
             armature=0.01,
             friction=0.0,
-            min_delay=0,
-            max_delay=5,
         ),
     },
 )
