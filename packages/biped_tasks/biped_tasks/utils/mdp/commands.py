@@ -19,10 +19,10 @@ if TYPE_CHECKING:
 class UniformVelocityCommandWithDeadzone(mdp.UniformVelocityCommand):
     """velocity command sampling class ported from isaacgym CaT"""
 
-    cfg: "UniformVelocityCommandWithDeadzoneCfg"
+    cfg: UniformVelocityCommandWithDeadzoneCfg
 
     def __init__(
-        self, cfg: "UniformVelocityCommandWithDeadzoneCfg", env: ManagerBasedEnv
+        self, cfg: UniformVelocityCommandWithDeadzoneCfg, env: ManagerBasedEnv,
     ):
         """Initializes the command generator.
 
@@ -48,7 +48,7 @@ class UniformVelocityCommandWithDeadzone(mdp.UniformVelocityCommand):
             env_ids = self.is_heading_env.nonzero(as_tuple=False).flatten()
             # compute angular velocity
             heading_error = math_utils.wrap_to_pi(
-                self.heading_target[env_ids] - self.robot.data.heading_w[env_ids]
+                self.heading_target[env_ids] - self.robot.data.heading_w[env_ids],
             )
             self.vel_command_b[env_ids, 2] = torch.clip(
                 self.cfg.heading_control_stiffness * heading_error,
@@ -59,7 +59,7 @@ class UniformVelocityCommandWithDeadzone(mdp.UniformVelocityCommand):
         # set small commands to zero
         self.vel_command_b *= (
             torch.any(
-                torch.abs(self.vel_command_b[:, :3]) > self.velocity_deadzone, dim=1
+                torch.abs(self.vel_command_b[:, :3]) > self.velocity_deadzone, dim=1,
             )
         ).unsqueeze(1)
 
@@ -87,7 +87,7 @@ class UniformVelocityCommandWithDeadzone(mdp.UniformVelocityCommand):
             1
             - 2
             * torch.bernoulli(
-                torch.full_like(self.vel_command_b[:, 2], p_ang_vel)
+                torch.full_like(self.vel_command_b[:, 2], p_ang_vel),
             ).float()
         )
 
