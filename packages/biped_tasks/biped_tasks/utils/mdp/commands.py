@@ -22,7 +22,9 @@ class UniformVelocityCommandWithDeadzone(mdp.UniformVelocityCommand):
     cfg: UniformVelocityCommandWithDeadzoneCfg
 
     def __init__(
-        self, cfg: UniformVelocityCommandWithDeadzoneCfg, env: ManagerBasedEnv,
+        self,
+        cfg: UniformVelocityCommandWithDeadzoneCfg,
+        env: ManagerBasedEnv,
     ):
         """Initializes the command generator.
 
@@ -59,27 +61,20 @@ class UniformVelocityCommandWithDeadzone(mdp.UniformVelocityCommand):
         # set small commands to zero
         self.vel_command_b *= (
             torch.any(
-                torch.abs(self.vel_command_b[:, :3]) > self.velocity_deadzone, dim=1,
+                torch.abs(self.vel_command_b[:, :3]) > self.velocity_deadzone,
+                dim=1,
             )
         ).unsqueeze(1)
 
         # Random velocity command resampling
-        no_vel_command = (
-            torch.norm(self.vel_command_b[:, :3], dim=1) < self.velocity_deadzone
-        ).float()
-        p_resample_command = 0.01 * no_vel_command + (
-            self.dt / self.max_episode_length_s
-        ) * (1 - no_vel_command)
-        resample_command_idx = (
-            torch.bernoulli(p_resample_command).nonzero(as_tuple=False).flatten()
-        )
+        no_vel_command = (torch.norm(self.vel_command_b[:, :3], dim=1) < self.velocity_deadzone).float()
+        p_resample_command = 0.01 * no_vel_command + (self.dt / self.max_episode_length_s) * (1 - no_vel_command)
+        resample_command_idx = torch.bernoulli(p_resample_command).nonzero(as_tuple=False).flatten()
         if len(resample_command_idx) > 0:
             self._resample(resample_command_idx)
 
         # Random angular velocity inversion during the episode to avoid having the robot moving in circle
-        p_ang_vel = (
-            self.dt / self.max_episode_length_s
-        )  # <- time step / duration of X seconds
+        p_ang_vel = self.dt / self.max_episode_length_s  # <- time step / duration of X seconds
         # There will be a probability of 0.63 of having at least one swap after X seconds have elapsed
         # (1 / p) policy steps for X seconds, and the probability of having no swap at all is (1 - p)**(1 / p) = 0.37
         # The mean number of swaps for (1 / p) steps with probability p is 1.

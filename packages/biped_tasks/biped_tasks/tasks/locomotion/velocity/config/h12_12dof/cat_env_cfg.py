@@ -71,7 +71,9 @@ class MySceneCfg(InteractiveSceneCfg):
     )
     # sensors
     contact_forces = ContactSensorCfg(
-        prim_path="{ENV_REGEX_NS}/Robot/.*", history_length=3, track_air_time=True,
+        prim_path="{ENV_REGEX_NS}/Robot/.*",
+        history_length=3,
+        track_air_time=True,
     )
     # lights
     sky_light = AssetBaseCfg(
@@ -98,7 +100,9 @@ class CommandsCfg:
         heading_command=False,
         debug_vis=True,
         ranges=mdp.UniformVelocityCommandCfg.Ranges(
-            lin_vel_x=(-1.0, 1.0), lin_vel_y=(-1.0, 1.0), ang_vel_z=(-1.0, 1.0),
+            lin_vel_x=(-1.0, 1.0),
+            lin_vel_y=(-1.0, 1.0),
+            ang_vel_z=(-1.0, 1.0),
         ),
         velocity_deadzone=VELOCITY_DEADZONE,
     )
@@ -113,18 +117,20 @@ class ActionsCfg:
 
     joint_pos = mdp.JointPositionActionCfg(
         asset_name="robot",
-        joint_names=[   "left_hip_yaw_joint",
-                        "left_hip_pitch_joint",
-                        "left_hip_roll_joint",
-                        "left_knee_joint",
-                        "left_ankle_pitch_joint",
-                        "left_ankle_roll_joint",
-                        "right_hip_yaw_joint",
-                        "right_hip_pitch_joint",
-                        "right_hip_roll_joint",
-                        "right_knee_joint",
-                        "right_ankle_pitch_joint",
-                        "right_ankle_roll_joint"],
+        joint_names=[
+            "left_hip_yaw_joint",
+            "left_hip_pitch_joint",
+            "left_hip_roll_joint",
+            "left_knee_joint",
+            "left_ankle_pitch_joint",
+            "left_ankle_roll_joint",
+            "right_hip_yaw_joint",
+            "right_hip_pitch_joint",
+            "right_hip_roll_joint",
+            "right_knee_joint",
+            "right_ankle_pitch_joint",
+            "right_ankle_roll_joint",
+        ],
         scale=0.25,
         use_default_offset=True,
         preserve_order=True,
@@ -141,43 +147,60 @@ class ObservationsCfg:
     @configclass
     class PolicyCfg(ObsGroup):
         """Observations for policy group."""
+
         # observation terms (order preserved)
         base_ang_vel = ObsTerm(func=mdp.base_ang_vel, scale=0.25, noise=Unoise(n_min=-0.2, n_max=0.2))
         projected_gravity = ObsTerm(func=mdp.projected_gravity, noise=Unoise(n_min=-0.05, n_max=0.05))
         velocity_commands = ObsTerm(func=mdp.generated_commands, params={"command_name": "base_velocity"})
-        joint_pos = ObsTerm(func=mdp.joint_pos_rel,
-                            noise=Unoise(n_min=-0.01, n_max=0.01),
-                            params={"asset_cfg": SceneEntityCfg("robot",
-                                                                joint_names=[   "left_hip_yaw_joint",
-                                                                                "left_hip_pitch_joint",
-                                                                                "left_hip_roll_joint",
-                                                                                "left_knee_joint",
-                                                                                "left_ankle_pitch_joint",
-                                                                                "left_ankle_roll_joint",
-                                                                                "right_hip_yaw_joint",
-                                                                                "right_hip_pitch_joint",
-                                                                                "right_hip_roll_joint",
-                                                                                "right_knee_joint",
-                                                                                "right_ankle_pitch_joint",
-                                                                                "right_ankle_roll_joint"],
-                                                                preserve_order=True)})
-        joint_vel = ObsTerm(func=mdp.joint_vel_rel,
-                            scale=0.05,
-                            noise=Unoise(n_min=-1.5, n_max=1.5),
-                            params={"asset_cfg": SceneEntityCfg("robot",
-                                                                joint_names=[   "left_hip_yaw_joint",
-                                                                                "left_hip_pitch_joint",
-                                                                                "left_hip_roll_joint",
-                                                                                "left_knee_joint",
-                                                                                "left_ankle_pitch_joint",
-                                                                                "left_ankle_roll_joint",
-                                                                                "right_hip_yaw_joint",
-                                                                                "right_hip_pitch_joint",
-                                                                                "right_hip_roll_joint",
-                                                                                "right_knee_joint",
-                                                                                "right_ankle_pitch_joint",
-                                                                                "right_ankle_roll_joint"],
-                                                                preserve_order=True)})
+        joint_pos = ObsTerm(
+            func=mdp.joint_pos_rel,
+            noise=Unoise(n_min=-0.01, n_max=0.01),
+            params={
+                "asset_cfg": SceneEntityCfg(
+                    "robot",
+                    joint_names=[
+                        "left_hip_yaw_joint",
+                        "left_hip_pitch_joint",
+                        "left_hip_roll_joint",
+                        "left_knee_joint",
+                        "left_ankle_pitch_joint",
+                        "left_ankle_roll_joint",
+                        "right_hip_yaw_joint",
+                        "right_hip_pitch_joint",
+                        "right_hip_roll_joint",
+                        "right_knee_joint",
+                        "right_ankle_pitch_joint",
+                        "right_ankle_roll_joint",
+                    ],
+                    preserve_order=True,
+                )
+            },
+        )
+        joint_vel = ObsTerm(
+            func=mdp.joint_vel_rel,
+            scale=0.05,
+            noise=Unoise(n_min=-1.5, n_max=1.5),
+            params={
+                "asset_cfg": SceneEntityCfg(
+                    "robot",
+                    joint_names=[
+                        "left_hip_yaw_joint",
+                        "left_hip_pitch_joint",
+                        "left_hip_roll_joint",
+                        "left_knee_joint",
+                        "left_ankle_pitch_joint",
+                        "left_ankle_roll_joint",
+                        "right_hip_yaw_joint",
+                        "right_hip_pitch_joint",
+                        "right_hip_roll_joint",
+                        "right_knee_joint",
+                        "right_ankle_pitch_joint",
+                        "right_ankle_roll_joint",
+                    ],
+                    preserve_order=True,
+                )
+            },
+        )
         actions = ObsTerm(func=mdp.last_action)
 
         def __post_init__(self):
@@ -249,8 +272,7 @@ class EventCfg:
         func=mdp.push_by_setting_velocity,
         mode="interval",
         interval_range_s=(5.0, 8.0),
-        params={"velocity_range": {"x": (-1.0, 1.0),
-                                   "y": (-1.0, 1.0)}},
+        params={"velocity_range": {"x": (-1.0, 1.0), "y": (-1.0, 1.0)}},
     )
 
 
@@ -278,8 +300,16 @@ class RewardsCfg:
     joint_acc_l2 = RewTerm(func=mdp.joint_acc_l2, weight=-2.5e-7)
     joint_vel_l2 = RewTerm(func=mdp.joint_vel_l2, weight=-1.0e-3)
     action_rate_l2 = RewTerm(func=mdp.action_rate_l2, weight=-0.01)
-    joint_deviation_l1 = RewTerm(func=mdp.joint_deviation_l1, weight=-0.1,
-                                 params={"asset_cfg": SceneEntityCfg("robot", joint_names=[".*_hip_yaw_joint", ".*_hip_roll_joint", ".*_ankle_pitch_joint", ".*_ankle_roll_joint"])})
+    joint_deviation_l1 = RewTerm(
+        func=mdp.joint_deviation_l1,
+        weight=-0.1,
+        params={
+            "asset_cfg": SceneEntityCfg(
+                "robot",
+                joint_names=[".*_hip_yaw_joint", ".*_hip_roll_joint", ".*_ankle_pitch_joint", ".*_ankle_roll_joint"],
+            )
+        },
+    )
 
 
 # ========================================================
@@ -292,8 +322,25 @@ class ConstraintsCfg:
         func=constraints.contact,
         max_p=1.0,
         params={
-            "asset_cfg": SceneEntityCfg("contact_forces", body_names=[".*_hip_yaw_link", ".*_hip_roll_link", ".*_hip_pitch_link", ".*_knee_link", "torso_link", "pelvis", ".*_shoulder_pitch_link", ".*_shoulder_roll_link", ".*_shoulder_yaw_link", ".*_elbow_link", ".*_wrist_yaw_link", ".*_wrist_roll_link", ".*_wrist_pitch_link"]),
-            },
+            "asset_cfg": SceneEntityCfg(
+                "contact_forces",
+                body_names=[
+                    ".*_hip_yaw_link",
+                    ".*_hip_roll_link",
+                    ".*_hip_pitch_link",
+                    ".*_knee_link",
+                    "torso_link",
+                    "pelvis",
+                    ".*_shoulder_pitch_link",
+                    ".*_shoulder_roll_link",
+                    ".*_shoulder_yaw_link",
+                    ".*_elbow_link",
+                    ".*_wrist_yaw_link",
+                    ".*_wrist_roll_link",
+                    ".*_wrist_pitch_link",
+                ],
+            ),
+        },
     )
 
     # Safety Soft constraints
@@ -315,18 +362,17 @@ class ConstraintsCfg:
     foot_contact_force = ConstraintTerm(
         func=constraints.foot_contact_force,
         max_p=0.25,
-        params={
-            "limit": 800.0,
-            "asset_cfg": SceneEntityCfg("contact_forces", body_names=[".*_ankle_roll_link"])},
+        params={"limit": 800.0, "asset_cfg": SceneEntityCfg("contact_forces", body_names=[".*_ankle_roll_link"])},
     )
 
     # Style constraints
     base_orientation = ConstraintTerm(
         func=constraints.base_orientation,
         max_p=0.25,
-        params={"limit": 0.2,
+        params={
+            "limit": 0.2,
             "asset_cfg": SceneEntityCfg("robot"),
-                },
+        },
     )
     base_height = ConstraintTerm(
         func=constraints.base_height,
@@ -342,7 +388,7 @@ class ConstraintsCfg:
         max_p=0.25,
         params={
             "asset_cfg": SceneEntityCfg("contact_forces", body_names=[".*_ankle_roll_link"]),
-                },
+        },
     )
     foot_clearance = ConstraintTerm(
         func=constraints.foot_clearance,
@@ -367,20 +413,23 @@ class TerminationsCfg:
     base_contact = DoneTerm(
         func=mdp.illegal_contact,
         params={
-            "sensor_cfg": SceneEntityCfg("contact_forces", body_names=[
-                                             ".*_hip_yaw_link",
-                                             ".*_hip_roll_link",
-                                             ".*_hip_pitch_link",
-                                             ".*_knee_link",
-                                             "torso_link",
-                                             "pelvis",
-                                             ".*_shoulder_pitch_link",
-                                             ".*_shoulder_roll_link",
-                                             ".*_shoulder_yaw_link",
-                                             ".*_elbow_link",
-                                             ".*_wrist_yaw_link",
-                                             ".*_wrist_roll_link",
-                                             ".*_wrist_pitch_link"],
+            "sensor_cfg": SceneEntityCfg(
+                "contact_forces",
+                body_names=[
+                    ".*_hip_yaw_link",
+                    ".*_hip_roll_link",
+                    ".*_hip_pitch_link",
+                    ".*_knee_link",
+                    "torso_link",
+                    "pelvis",
+                    ".*_shoulder_pitch_link",
+                    ".*_shoulder_roll_link",
+                    ".*_shoulder_yaw_link",
+                    ".*_elbow_link",
+                    ".*_wrist_yaw_link",
+                    ".*_wrist_roll_link",
+                    ".*_wrist_pitch_link",
+                ],
             ),
             "threshold": 1.0,
         },
@@ -395,27 +444,19 @@ class CurriculumCfg:
     # Soft constraints
     joint_position_limits = CurrTerm(
         func=curriculums.modify_constraint_p,
-        params={"term_name": "joint_position_limits",
-                "num_steps": 24 * MAX_CURRICULUM_ITERATIONS,
-                "init_max_p": 0.25},
+        params={"term_name": "joint_position_limits", "num_steps": 24 * MAX_CURRICULUM_ITERATIONS, "init_max_p": 0.25},
     )
     joint_velocity_limits = CurrTerm(
         func=curriculums.modify_constraint_p,
-        params={"term_name": "joint_velocity_limits",
-                "num_steps": 24 * MAX_CURRICULUM_ITERATIONS,
-                "init_max_p": 0.25},
+        params={"term_name": "joint_velocity_limits", "num_steps": 24 * MAX_CURRICULUM_ITERATIONS, "init_max_p": 0.25},
     )
     joint_torque_limits = CurrTerm(
         func=curriculums.modify_constraint_p,
-        params={"term_name": "joint_torque_limits",
-                "num_steps": 24 * MAX_CURRICULUM_ITERATIONS,
-                "init_max_p": 0.25},
+        params={"term_name": "joint_torque_limits", "num_steps": 24 * MAX_CURRICULUM_ITERATIONS, "init_max_p": 0.25},
     )
     foot_contact_force = CurrTerm(
         func=curriculums.modify_constraint_p,
-        params={"term_name": "foot_contact_force",
-                "num_steps": 24 * MAX_CURRICULUM_ITERATIONS,
-                "init_max_p": 0.25},
+        params={"term_name": "foot_contact_force", "num_steps": 24 * MAX_CURRICULUM_ITERATIONS, "init_max_p": 0.25},
     )
 
     # Style constraints
@@ -437,9 +478,7 @@ class CurriculumCfg:
     )
     foot_contact = CurrTerm(
         func=curriculums.modify_constraint_p,
-        params={"term_name": "foot_contact",
-                "num_steps": 24 * MAX_CURRICULUM_ITERATIONS,
-                "init_max_p": 0.25},
+        params={"term_name": "foot_contact", "num_steps": 24 * MAX_CURRICULUM_ITERATIONS, "init_max_p": 0.25},
     )
     foot_clearance = CurrTerm(
         func=curriculums.modify_constraint_p,
@@ -511,4 +550,3 @@ class H12_12dof_EnvCfg_PLAY(H12_12dof_EnvCfg):
         self.commands.base_velocity.ranges.lin_vel_x = (0.0, 0.0)
         self.commands.base_velocity.ranges.lin_vel_y = (0.0, 0.0)
         self.commands.base_velocity.ranges.ang_vel_z = (0.0, 0.0)
-
